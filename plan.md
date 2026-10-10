@@ -124,9 +124,9 @@ Go to a nearby ghat or riverbank (location: _to decide_).
 ## Phase 6 — Docs, video and DEV post (Sun night, ~5 h)
 
 - [ ] **6.1 Fix** P0 blockers from 5.5; push.
-- [ ] **6.2 README**: replace "in development" status, add screenshots, confirm every command works from a fresh clone.
-- [ ] **6.3 Demo video** (1–2 min): ghat → crowd problem → data off → each tab once → privacy line. Upload and link in README.
-- [ ] **6.4 DEV post** from the Week 1 template, tags `#devchallenge #hf26challenge`:
+- [ ] **6.2 README**: status, commands and limits updated; every command checked from a fresh clone ✅. Still to add: real screenshots and the video link after the field test.
+- [ ] **6.3 Demo video** (1–2 min): ghat → crowd problem → data off → each tab once → privacy line. Shot list in [docs/DEMO_VIDEO.md](docs/DEMO_VIDEO.md). Upload and link in README.
+- [ ] **6.4 DEV post** from the Week 1 template, tags `#devchallenge #hf26challenge`. Draft in [docs/DEV_POST.md](docs/DEV_POST.md): fill every `[FILL: …]` and match the official template headings:
   - [ ] Opens with the ghat, the crowd and the dead network
   - [ ] "Touch Grass" story: where it was tested, how it went, the elder's reaction
   - [ ] "Why open innovation matters": no network, data on device, free, local languages, swappable model
