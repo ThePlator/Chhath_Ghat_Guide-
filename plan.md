@@ -19,7 +19,7 @@ This plan turns the PRD's two-day schedule into concrete tasks. Each task names 
 | Phase | Slot (IST) | Status |
 | --- | --- | --- |
 | 0. Design docs | Sat early | ✅ Done (HLD, LLD, README, LICENSE merged) |
-| 1. Model spike | Sat morning | ⬜ |
+| 1. Model spike | Sat morning | 🟡 Code done; model test pending on laptop |
 | 2. Notice Reader | Sat afternoon | ⬜ |
 | 3. Knowledge base + Ritual Helper | Sat evening | ⬜ |
 | 4. Meeting Spot | Sun morning | ⬜ |
@@ -59,14 +59,14 @@ Goal: prove Gemma can read a notice and answer in Hindi / Bhojpuri / Maithili on
 
 - [ ] **1.1 Install** Ollama; `ollama pull gemma3:4b` and `ollama pull nomic-embed-text`.
   *Done when:* `ollama list` shows both models.
-- [ ] **1.2 Project skeleton**: `requirements.txt`, `.gitignore` (`data/`, `certs/`, `.venv/`), `config/settings.toml`, `ghat_guide/__init__.py`, `ghat_guide/config.py`.
+- [x] **1.2 Project skeleton**: `requirements.txt`, `.gitignore` (`data/`, `certs/`, `.venv/`), `config/settings.toml`, `ghat_guide/__init__.py`, `ghat_guide/config.py`.
   *Done when:* `python -c "from ghat_guide.config import load_settings; print(load_settings())"` works.
-- [ ] **1.3 LLM gateway** `ghat_guide/llm.py`: `health()`, `warm_up()`, `chat_json()` with JSON schema + lock + timeout, `embed()`.
+- [x] **1.3 LLM gateway** `ghat_guide/llm.py`: `health()`, `warm_up()`, `chat_json()` with JSON schema + lock + timeout, `embed()`.
   *Done when:* a one-line script gets valid JSON back from `gemma3:4b`.
-- [ ] **1.4 Image prep** `ghat_guide/imaging.py`: EXIF rotate, strip metadata, resize to 1024 px.
+- [x] **1.4 Image prep** `ghat_guide/imaging.py`: EXIF rotate, strip metadata, resize to 1024 px.
   *Done when:* `tests/test_imaging.py` passes (GPS EXIF removed, long side ≤ 1024).
-- [ ] **1.5 Prompts** `ghat_guide/prompts.py`: transcribe + explain prompts and schemas (LLD §4.1–4.2).
-- [ ] **1.6 Spike test** on 3–5 notice photos (print a few sample notices if no real ones yet), in all three languages. Record in `tests/eval/notice_log.md`: text accuracy, clarity verdict, explanation quality per language, seconds per photo.
+- [x] **1.5 Prompts** `ghat_guide/prompts.py`: transcribe + explain prompts and schemas (LLD §4.1–4.2).
+- [ ] **1.6 Spike test** on 3–5 notice photos (print a few sample notices if no real ones yet), in all three languages. Put photos in `tests/eval/notices/` and run `python scripts/spike_notice.py`; it appends text read, explanations and timings to `tests/eval/notice_log.md`. Fill in the score tables by hand.
   *Done when:* the log is filled in.
 - [ ] **1.7 Decide** the default language and whether Bhojpuri / Maithili stay "beta". Update `config/settings.toml` → `default_language`.
 

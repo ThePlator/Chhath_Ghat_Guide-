@@ -1,0 +1,9 @@
+streamlit>=1.38
+ollama>=0.4
+pillow>=10.4
+numpy>=1.26
+pyyaml>=6.0
+python-frontmatter>=1.1
+tomli>=2.0; python_version < "3.11"
+# P1 only
+# faster-whisper>=1.0

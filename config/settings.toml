@@ -1,0 +1,31 @@
+# Chhath Ghat Guide settings. See docs/LLD.md §2.1.
+# Environment overrides: GHAT_OLLAMA_HOST, GHAT_VISION_MODEL, GHAT_TEXT_MODEL, GHAT_EMBED_MODEL
+
+[ollama]
+host = "http://127.0.0.1:11434"
+vision_model = "gemma3:4b"
+text_model = "gemma3:4b"
+embed_model = "nomic-embed-text"
+keep_alive = "30m"
+timeout_s = 180
+max_retries = 1                 # retries on invalid JSON only
+
+[notice]
+max_image_px = 1024             # long side
+jpeg_quality = 85
+transcribe_temperature = 0.0
+explain_temperature = 0.2
+min_text_chars = 8              # shorter → unclear
+max_unknown_ratio = 0.30        # share of "[?]" tokens → unclear
+
+[ritual]
+top_k = 4
+min_score = 0.45                # tune on tests/eval/ritual_questions.yaml
+weight_vector = 0.6
+weight_keyword = 0.4
+answer_temperature = 0.1
+index_path = "data/kb_index"
+
+[ui]
+default_language = "hi"         # hi | bho | mai — revisit after the Phase 1 spike
+beta_languages = ["bho", "mai"]
