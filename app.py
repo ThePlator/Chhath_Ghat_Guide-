@@ -10,7 +10,7 @@ import streamlit as st
 st.set_page_config(page_title="Chhath Ghat Guide", page_icon="🌅", layout="centered")
 
 from ghat_guide.i18n import t  # noqa: E402
-from ghat_guide.ui import notice_tab, ritual_tab  # noqa: E402
+from ghat_guide.ui import meeting_tab, notice_tab, ritual_tab  # noqa: E402
 from ghat_guide.ui.sidebar import render_health_banner, render_sidebar  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -30,4 +30,4 @@ with tab_ritual:
     ritual_tab.render(lang)
 
 with tab_meeting:
-    st.info(t("coming_soon_meeting", lang))  # Phase 4
+    meeting_tab.render(lang)

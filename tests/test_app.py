@@ -224,3 +224,19 @@ def test_ritual_index_error_when_ollama_down(use_client, monkeypatch, tmp_path):
     at = AppTest.from_file(APP, default_timeout=30).run()
     assert not at.exception
     assert any("nomic-embed-text" in e.value for e in at.error)
+
+
+# -- Meeting Spot tab -----------------------------------------------------------
+
+def test_meeting_tab_embeds_widget_with_strings_inlined(use_client):
+    from ghat_guide.ui.meeting_tab import widget_html
+
+    html = widget_html("bho")
+    assert 'window.MS_LANG = "bho";' in html
+    assert "MEETING_SPOT_STRINGS" in html
+    assert 'src="meeting_spot_strings.js"' not in html  # a srcdoc frame can't load relative files
+
+    use_client(FakeClient())
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    assert not at.exception
+    assert "पूरी स्क्रीन" in all_text(at)

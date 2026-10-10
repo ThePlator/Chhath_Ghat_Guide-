@@ -22,7 +22,7 @@ This plan turns the PRD's two-day schedule into concrete tasks. Each task names 
 | 1. Model spike | Sat morning | 🟡 Code done; model test pending on laptop |
 | 2. Notice Reader | Sat afternoon | 🟡 Built and tested with a stand-in model; real-model check pending on laptop |
 | 3. Knowledge base + Ritual Helper | Sat evening | 🟡 Built and tested with a stand-in model; notes need elder review; tune `min_score` on laptop |
-| 4. Meeting Spot | Sun morning | ⬜ |
+| 4. Meeting Spot | Sun morning | 🟡 Built; tested with emulated GPS/compass over HTTPS; real-phone outdoor check pending |
 | 5. Field test (data off) | Sun afternoon | ⬜ |
 | 6. Docs, video, DEV post | Sun night | ⬜ |
 | 7. Proofread and publish | Mon by 10:00 AM | ⬜ |
@@ -103,11 +103,11 @@ Goal: prove Gemma can read a notice and answer in Hindi / Bhojpuri / Maithili on
 
 ## Phase 4 — Meeting Spot (Sun morning, ~4 h)
 
-- [ ] **4.1 Geo maths** `ghat_guide/geo.py` + `tests/test_geo.py` (haversine, bearing, compass point).
-- [ ] **4.2 Widget** `static/meeting_spot.html`: save (GPS + photo ≤ 640 px + note) to `localStorage` with midnight expiry; clear button; secure-context check.
-- [ ] **4.3 Guide mode**: `watchPosition`, compass (iOS permission, Android absolute orientation), arrow = bearing − heading, smoothing, text directions when no compass, "arrived" and "GPS rough" states (LLD §6).
-- [ ] **4.4 Tab** `ghat_guide/ui/meeting_tab.py`: embed widget, "open full screen" link, disclaimer.
-- [ ] **4.5 HTTPS** `scripts/make_cert.sh`; run with the certificate; open on a phone over the hotspot.
+- [x] **4.1 Geo maths** `ghat_guide/geo.py` + `tests/test_geo.py` (haversine, bearing, compass point).
+- [x] **4.2 Widget** `static/meeting_spot.html`: save (GPS + photo ≤ 640 px + note) to `localStorage` with midnight expiry; clear button; secure-context check.
+- [x] **4.3 Guide mode**: `watchPosition`, compass (iOS permission, Android absolute orientation), arrow = bearing − heading, smoothing, text directions when no compass, "arrived" and "GPS rough" states (LLD §6).
+- [x] **4.4 Tab** `ghat_guide/ui/meeting_tab.py`: embed widget, "open full screen" link, disclaimer.
+- [x] **4.5 HTTPS** `scripts/make_cert.sh`; run with the certificate; open on a phone over the hotspot.
 - [ ] **4.6 Outdoor check**: save a spot, walk 50–100 m, walk back by the arrow.
   *Phase done when:* the arrow points the right way on at least one Android or iPhone, and the spot survives a page reload and disappears after "Clear".
 

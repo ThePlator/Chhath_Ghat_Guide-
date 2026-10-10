@@ -62,7 +62,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "ritual_no_notes": "अभी कोई नोट जाँचा नहीं गया है, इसलिए पूजा सहायक बंद है। kb/ फ़ोल्डर के नोट्स किसी बड़े को पढ़कर सुनाएँ और checked_by भरें (kb/README.md देखें)।",
         "ritual_index_error": "नोट्स तैयार नहीं हो पाए। लैपटॉप पर Ollama और `nomic-embed-text` मॉडल जाँचें।",
         "ritual_recent": "पिछले सवाल",
-        "coming_soon_meeting": "मिलने की जगह जल्द आ रही है।",
+        "open_full_screen": "↗️ पूरी स्क्रीन में खोलें",
+        "full_screen_hint": "तीर या लोकेशन काम न करे तो पूरी स्क्रीन में खोलें। जगह इसी फ़ोन में सहेजी रहती है।",
     },
     "bho": {
         "app_tagline": "बिना इंटरनेट के घाट पर परिवार के साथी",
