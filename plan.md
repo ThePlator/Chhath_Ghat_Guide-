@@ -20,7 +20,7 @@ This plan turns the PRD's two-day schedule into concrete tasks. Each task names 
 | --- | --- | --- |
 | 0. Design docs | Sat early | ✅ Done (HLD, LLD, README, LICENSE merged) |
 | 1. Model spike | Sat morning | 🟡 Code done; model test pending on laptop |
-| 2. Notice Reader | Sat afternoon | ⬜ |
+| 2. Notice Reader | Sat afternoon | 🟡 Built and tested with a stand-in model; real-model check pending on laptop |
 | 3. Knowledge base + Ritual Helper | Sat evening | ⬜ |
 | 4. Meeting Spot | Sun morning | ⬜ |
 | 5. Field test (data off) | Sun afternoon | ⬜ |
@@ -77,13 +77,13 @@ Goal: prove Gemma can read a notice and answer in Hindi / Bhojpuri / Maithili on
 
 ## Phase 2 — Notice Reader tab (Sat afternoon, ~5 h)
 
-- [ ] **2.1 Safety** `ghat_guide/safety.py`: `normalise()`, `is_safety_notice()`, `clarity_verdict()`, `unsupported_numbers()`.
+- [x] **2.1 Safety** `ghat_guide/safety.py`: `normalise()`, `is_safety_notice()`, `clarity_verdict()`, `unsupported_numbers()`.
   *Done when:* `tests/test_safety.py` passes.
-- [ ] **2.2 Service** `ghat_guide/notice_reader.py`: two-step read → `NoticeResult` (LLD §3.4).
-- [ ] **2.3 Strings** `ghat_guide/i18n.py`: `t(key, lang)` with Hindi complete; Bhojpuri / Maithili fall back to Hindi.
-- [ ] **2.4 App shell** `app.py` + `ghat_guide/ui/sidebar.py`: page config, language picker, health banner, emergency card from `config/emergency.yaml`, three tabs.
-- [ ] **2.5 Notice tab** `ghat_guide/ui/notice_tab.py`: camera + upload; unclear / safety / normal views; number warning; disclaimer.
-- [ ] **2.6 Streamlit config** `.streamlit/config.toml`: no usage stats, static serving on, upload limit.
+- [x] **2.2 Service** `ghat_guide/notice_reader.py`: two-step read → `NoticeResult` (LLD §3.4).
+- [x] **2.3 Strings** `ghat_guide/i18n.py`: `t(key, lang)` with Hindi complete; Bhojpuri / Maithili fall back to Hindi.
+- [x] **2.4 App shell** `app.py` + `ghat_guide/ui/sidebar.py`: page config, language picker, health banner, emergency card from `config/emergency.yaml`, three tabs.
+- [x] **2.5 Notice tab** `ghat_guide/ui/notice_tab.py`: camera + upload; unclear / safety / normal views; number warning; disclaimer.
+- [x] **2.6 Streamlit config** `.streamlit/config.toml`: no usage stats, static serving on, upload limit.
 
 *Phase done when:* on `http://localhost:8501`, a clear photo shows explanation + original text; a blurry photo shows "साफ़ नहीं पढ़ पाए"; a "deep water" notice shows the original text first in a red box; stopping Ollama shows the setup banner instead of a crash.
 

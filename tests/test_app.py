@@ -1,0 +1,143 @@
+"""Runs the real app.py with a fake Ollama client (no model needed)."""
+
+import json
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+import streamlit as st
+from streamlit.testing.v1 import AppTest
+
+import ghat_guide.llm as llm_mod
+
+APP = str(Path(__file__).resolve().parent.parent / "app.py")
+
+
+class FakeClient:
+    def __init__(self, models=("gemma3:4b", "nomic-embed-text:latest"), down=False):
+        self.models, self.down = models, down
+
+    def list(self):
+        if self.down:
+            raise ConnectionError("Failed to connect to Ollama")
+        return SimpleNamespace(models=[SimpleNamespace(model=m) for m in self.models])
+
+    def chat(self, **kw):
+        if self.down:
+            raise ConnectionError("Failed to connect to Ollama")
+        return SimpleNamespace(message=SimpleNamespace(content=json.dumps({"explanation": ""})))
+
+
+@pytest.fixture
+def use_client(monkeypatch):
+    def _use(client):
+        monkeypatch.setattr(llm_mod, "_default_client", lambda s: client)
+        st.cache_resource.clear()
+        st.cache_data.clear()
+
+    yield _use
+    st.cache_resource.clear()
+    st.cache_data.clear()
+
+
+def all_text(at) -> str:
+    parts = []
+    for kind in ("markdown", "caption", "error", "warning", "info", "title"):
+        parts += [e.value for e in getattr(at, kind)]
+    return "\n".join(str(p) for p in parts)
+
+
+def test_app_boots_with_three_tabs_and_emergency_card(use_client):
+    use_client(FakeClient())
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    assert not at.exception
+    assert len(at.tabs) == 3
+    assert "छठ घाट गाइड" in at.title[0].value
+    assert "पुलिस या स्वयंसेवक बूथ" in all_text(at)
+    assert not at.error  # healthy: no setup banner
+
+
+def test_ollama_down_shows_setup_banner_not_crash(use_client):
+    use_client(FakeClient(down=True))
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    assert not at.exception
+    assert any("ollama serve" in e.value for e in at.error)
+
+
+def test_missing_model_shows_pull_command(use_client):
+    use_client(FakeClient(models=("nomic-embed-text",)))
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    assert any("ollama pull gemma3:4b" in w.value for w in at.warning)
+
+
+def test_language_switch_changes_tab_label(use_client):
+    use_client(FakeClient())
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    at.sidebar.radio[0].set_value("mai").run()
+    assert not at.exception
+    assert at.tabs[0].label == "📜 सूचना पढ़ू"
+    assert "परीक्षण" in all_text(at)  # beta note
+
+
+# -- render_result views ------------------------------------------------------
+
+def _page(clarity, is_safety, text, explanation, warn):
+    from ghat_guide.notice_reader import Explanation, Transcription
+    from ghat_guide.ui.notice_tab import render_result
+
+    tr = Transcription(text, "devanagari", clarity, is_safety, 1.0)
+    ex = None if explanation is False else Explanation("hi", explanation, None, frozenset(warn), 1.0)
+    render_result(tr, ex, "hi")
+
+
+def _render(clarity, is_safety, text, explanation, warn=()):
+    return AppTest.from_function(
+        _page, args=(clarity, is_safety, text, explanation, tuple(warn)), default_timeout=30
+    ).run()
+
+
+def test_view_clear_notice():
+    at = _render("clear", False, "घाट 4 पर प्रसाद वितरण होगा", "घाट 4 पर प्रसाद मिलेगा।")
+    assert not at.code
+    assert not at.exception and not at.error and not at.warning
+    assert "घाट 4 पर प्रसाद वितरण होगा" in all_text(at)
+    assert "प्रसाद मिलेगा" in all_text(at)
+
+
+def test_view_unclear_notice():
+    at = _render("unclear", False, "[?] [?]", False)
+    assert "साफ़ नहीं पढ़ पाए" in at.warning[0].value
+    assert "\\[?\\] \\[?\\]" in all_text(at)
+
+
+def test_view_safety_notice_original_first_in_red():
+    at = _render("clear", True, "घाट 3 के आगे गहरा पानी है", "आगे पानी गहरा है।")
+    err = at.error[0].value
+    assert "सुरक्षा सूचना" in err
+    assert "घाट 3 के आगे गहरा पानी है" in err  # original text inside the red box
+    # shown once (not repeated in an expander), and before the explanation
+    assert all("गहरा पानी है" not in m.value for m in at.markdown)
+    blocks = [type(e).__name__ for e in at.main]
+    assert blocks.index("Error") < blocks.index("Subheader")
+
+
+def test_view_number_warning_and_partial():
+    at = _render("partial", False, "घाट 5 पर [?] है", "घाट 7 पर कुछ है।", warn={"7"})
+    assert any("[?]" in i.value for i in at.info)
+    assert any("(7)" in w.value for w in at.warning)
+
+
+def test_view_explanation_failed():
+    at = _render("clear", False, "घाट 4 पर प्रसाद वितरण होगा", None)
+    assert any("समझाने में दिक्कत" in w.value for w in at.warning)
+
+
+def test_model_text_is_not_rendered_as_markdown():
+    at = _render("clear", False, "घाट 4", "[click](http://evil.example) **bold**")
+    md = [m.value for m in at.markdown]
+    assert any("\\[click\\]" in v for v in md)
+
+
+def test_line_breaks_kept():
+    at = _render("clear", False, "पहली पंक्ति\nदूसरी पंक्ति", "ठीक")
+    assert any("पहली पंक्ति  \nदूसरी पंक्ति" in m.value for m in at.markdown)

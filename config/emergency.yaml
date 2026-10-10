@@ -1,0 +1,16 @@
+# Emergency card shown on every screen (HLD §8.1).
+#
+# Organisers: fill in local, VERIFIED details on the day. Leave contacts empty
+# if unknown. The app never ships with made-up numbers.
+#
+# NOTE: the Bhojpuri and Maithili messages are drafts; have a native speaker check them.
+message:
+  hi: "किसी भी परेशानी में सबसे पास के पुलिस या स्वयंसेवक बूथ पर जाएँ।"
+  bho: "कवनो दिक्कत होखे त सबसे नजदीक के पुलिस भा वॉलंटियर बूथ पर जाईं।"
+  mai: "कोनो समस्या मे सबसँ लग के पुलिस वा स्वयंसेवक बूथ पर जाउ।"
+contacts: []
+# Example (do not uncomment with made-up values):
+# contacts:
+#   - label: "Ghat 5 police booth"
+#     phone: "..."
+#     where: "Near the main steps"
