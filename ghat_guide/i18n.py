@@ -47,12 +47,27 @@ STRINGS: dict[str, dict[str, str]] = {
         "err_image": "फोटो खुल नहीं पाई। JPG या PNG फोटो चुनें।",
         "err_generic": "कुछ गड़बड़ हुई। दोबारा कोशिश करें।",
         "err_unavailable": "मॉडल से नहीं जुड़ पाए। लैपटॉप पर Ollama चालू है और मॉडल डाउनलोड है, यह जाँचें।",
-        "coming_soon_ritual": "पूजा सहायक जल्द आ रहा है।",
+        "ritual_intro": "छठ पूजा के बारे में सवाल पूछें। जवाब सिर्फ़ उन नोट्स से आता है जिन्हें घर के बड़ों ने जाँचा है।",
+        "ritual_question": "आपका सवाल",
+        "ritual_placeholder": "जैसे: अर्घ्य कब दिया जाता है?",
+        "ritual_ask": "पूछें",
+        "ritual_examples": "या इनमें से चुनें",
+        "ritual_thinking": "नोट्स में देख रहे हैं…",
+        "ritual_empty_question": "कृपया सवाल लिखें।",
+        "not_in_notes": "🙏 यह मेरे नोट्स में नहीं है। कृपया घर के किसी बड़े से पूछें।",
+        "official_info": "🕰️ समय, तारीख और घाट की व्यवस्था मेरे नोट्स में नहीं है। इसके लिए सरकारी सूचना, पंचांग या स्वयंसेवकों से पूछें।",
+        "customs_vary": "हर परिवार और इलाके के रिवाज़ थोड़े अलग होते हैं; अपने घर का तरीका बड़ों से पूछें।",
+        "sources": "यह जवाब किन नोट्स से आया",
+        "checked_by_line": "जाँचा: {who}, {when}",
+        "ritual_no_notes": "अभी कोई नोट जाँचा नहीं गया है, इसलिए पूजा सहायक बंद है। kb/ फ़ोल्डर के नोट्स किसी बड़े को पढ़कर सुनाएँ और checked_by भरें (kb/README.md देखें)।",
+        "ritual_index_error": "नोट्स तैयार नहीं हो पाए। लैपटॉप पर Ollama और `nomic-embed-text` मॉडल जाँचें।",
+        "ritual_recent": "पिछले सवाल",
         "coming_soon_meeting": "मिलने की जगह जल्द आ रही है।",
     },
     "bho": {
         "app_tagline": "बिना इंटरनेट के घाट पर परिवार के साथी",
         "tab_notice": "📜 सूचना पढ़ीं",
+        "ritual_question": "रउआ के सवाल",
         "unclear_title": "साफ़ ना पढ़ पवनी",
         "explanation_title": "आसान भाषा में",
         "original_text": "सूचना में जवन लिखल बा",
@@ -60,6 +75,7 @@ STRINGS: dict[str, dict[str, str]] = {
     "mai": {
         "app_tagline": "बिना इंटरनेटक घाट पर परिवारक संगी",
         "tab_notice": "📜 सूचना पढ़ू",
+        "ritual_question": "अहाँक प्रश्न",
         "unclear_title": "साफ़ नहि पढ़ि सकलहुँ",
         "explanation_title": "सरल भाषा मे",
         "original_text": "सूचना मे जे लिखल अछि",
@@ -73,3 +89,19 @@ def t(key: str, lang: str = FALLBACK, **fmt) -> str:
     if text is None:
         raise KeyError(f"missing UI string {key!r}")
     return text.format(**fmt) if fmt else text
+
+
+RITUAL_EXAMPLES: dict[str, list[str]] = {
+    "hi": [
+        "अर्घ्य कब दिया जाता है?",
+        "सूप में क्या रखते हैं?",
+        "खरना में क्या बनता है?",
+        "नहाय-खाय में क्या खाते हैं?",
+        "ठेकुआ कैसे बनता है?",
+        "निर्जला व्रत कब शुरू होता है?",
+    ],
+}
+
+
+def ritual_examples(lang: str) -> list[str]:
+    return RITUAL_EXAMPLES.get(lang) or RITUAL_EXAMPLES[FALLBACK]

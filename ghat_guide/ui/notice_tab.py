@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import logging
-import re
 
 import streamlit as st
 
@@ -13,16 +12,9 @@ from ..imaging import ImageError
 from ..llm import LLMError, LLMTimeout, LLMUnavailable
 from ..notice_reader import Explanation, Transcription
 from . import services
+from .text import plain
 
 log = logging.getLogger(__name__)
-
-_MD_SPECIAL = re.compile(r"([\\`*_{}\[\]<>()#+\-.!|~])")
-
-
-def _md_escape(text: str) -> str:
-    """Model text is shown as plain words, never as Markdown formatting or links."""
-    return _MD_SPECIAL.sub(r"\\\1", text)
-
 
 def render(lang: str) -> None:
     st.write(t("notice_intro", lang))
@@ -76,14 +68,9 @@ def render(lang: str) -> None:
     st.image(cache["prepared"], caption=t("photo_shown", lang), width=240)
 
 
-def _plain(text: str) -> str:
-    """Escaped Markdown that keeps the notice's own line breaks."""
-    return "  \n".join(_md_escape(line) for line in text.splitlines())
-
-
 def _original(text: str) -> None:
     with st.container(border=True):
-        st.markdown(_plain(text))
+        st.markdown(plain(text))
 
 
 def render_result(tr: Transcription, ex: Explanation | None, lang: str) -> None:
@@ -97,7 +84,7 @@ def render_result(tr: Transcription, ex: Explanation | None, lang: str) -> None:
 
     if tr.is_safety:
         # Safety notices: the original words come first, never only a summary.
-        st.error(f"**{t('safety_title', lang)}**\n\n{_plain(tr.text_read)}")
+        st.error(f"**{t('safety_title', lang)}**\n\n{plain(tr.text_read)}")
 
     if tr.clarity == "partial":
         st.info(t("partial_note", lang))
@@ -107,7 +94,7 @@ def render_result(tr: Transcription, ex: Explanation | None, lang: str) -> None:
         st.warning(t("explain_failed", lang))
     else:
         with st.container(border=True):
-            st.markdown(_plain(ex.text))
+            st.markdown(plain(ex.text))
         if ex.number_warning:
             st.warning(t("check_numbers", lang, nums=", ".join(sorted(ex.number_warning, key=int))))
 

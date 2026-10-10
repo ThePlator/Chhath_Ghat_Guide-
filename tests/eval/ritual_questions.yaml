@@ -1,0 +1,28 @@
+# Ritual Helper evaluation set (plan.md task 3.7).
+# expect: list of note ids that may answer it | "official" (timing / logistics guard) | "none" (not in the notes)
+# Target: 0 confident answers for "none" and "official"; most answerable ones hit an expected note.
+
+answerable:
+  - {q: "अर्घ्य कब दिया जाता है?", expect: [sandhya-arghya, usha-arghya]}
+  - {q: "सूप में क्या रखते हैं?", expect: [soop-daura]}
+  - {q: "खरना में क्या बनता है?", expect: [kharna]}
+  - {q: "नहाय-खाय में क्या खाते हैं?", expect: [nahay-khay]}
+  - {q: "ठेकुआ कैसे बनता है?", expect: [thekua-prasad]}
+  - {q: "निर्जला व्रत कब शुरू होता है?", expect: [kharna, fasting-customs]}
+  - {q: "छठ में किसकी पूजा होती है?", expect: [chhathi-maiya-surya, chhath-overview]}
+  - {q: "पारण क्या होता है?", expect: [usha-arghya, chhath-overview]}
+  - {q: "छठ कितने दिन का होता है?", expect: [chhath-overview]}
+  - {q: "कोसी भरना क्या है?", expect: [chhathi-maiya-surya, sandhya-arghya]}
+  - {q: "घाट पर बच्चों का ध्यान कैसे रखें?", expect: [ghat-etiquette]}
+  - {q: "सुबह का अर्घ्य कैसे देते हैं?", expect: [usha-arghya]}
+  - {q: "दउरा घाट तक कौन ले जाता है?", expect: [sandhya-arghya, soop-daura]}
+  - {q: "खरना में का बनेला?", expect: [kharna]}                 # Bhojpuri
+  - {q: "व्रत में प्याज़ लहसुन खा सकते हैं?", expect: [fasting-customs, nahay-khay]}
+
+not_answerable:
+  - {q: "इस साल संध्या अर्घ्य कितने बजे है?", expect: official}
+  - {q: "घाट पर पार्किंग कहाँ है?", expect: official}
+  - {q: "छठ पूजा का इतिहास कितना पुराना है?", expect: none}
+  - {q: "गंगा का पानी कितना गहरा है?", expect: none}             # shares words with the notes
+  - {q: "सबसे अच्छा ठेकुआ साँचा कहाँ मिलेगा?", expect: none}     # shares words with the notes
+  - {q: "How do I reach Gandhi Ghat in Patna?", expect: none}

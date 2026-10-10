@@ -141,3 +141,86 @@ def test_model_text_is_not_rendered_as_markdown():
 def test_line_breaks_kept():
     at = _render("clear", False, "पहली पंक्ति\nदूसरी पंक्ति", "ठीक")
     assert any("पहली पंक्ति  \nदूसरी पंक्ति" in m.value for m in at.markdown)
+
+
+# -- Ritual tab -----------------------------------------------------------------
+
+from dataclasses import replace  # noqa: E402
+
+import ghat_guide.ui.services as services_mod  # noqa: E402
+from ghat_guide.config import load_settings  # noqa: E402
+from tests.fakes import SAMPLE_NOTES  # noqa: E402
+from tests.fakes import FakeClient as RitualClient  # noqa: E402
+from tests.fakes import write_kb  # noqa: E402
+
+
+def _cite_first(kw):
+    user = kw["messages"][1]["content"]
+    if "<notes>" not in user:  # warm-up or other calls
+        return {"explanation": ""}
+    first = user.split("[", 1)[1].split("]", 1)[0]
+    return {"found": True, "answer": "शाम को गुड़ की खीर और रोटी बनती है।", "used_chunk_ids": [first]}
+
+
+@pytest.fixture
+def ritual_app(use_client, monkeypatch, tmp_path):
+    def _setup(notes):
+        kb = write_kb(tmp_path / "kb", notes)
+        base = load_settings()
+        s = replace(base, ritual=replace(base.ritual, kb_dir=str(kb), index_path=str(tmp_path / "idx")))
+        monkeypatch.setattr(services_mod, "load_settings", lambda: s)
+        use_client(RitualClient(chat_reply=_cite_first))
+        return AppTest.from_file(APP, default_timeout=30).run()
+
+    return _setup
+
+
+def test_ritual_tab_disabled_without_checked_notes(ritual_app):
+    from tests.fakes import note
+
+    at = ritual_app([note("x", "एक्स", ["क"], [("अ", "ब")], checked=False)])
+    assert not at.exception
+    assert any("जाँचा नहीं गया" in i.value for i in at.info)
+    assert not at.text_input
+
+
+def test_ritual_question_answered_with_sources(ritual_app):
+    at = ritual_app(SAMPLE_NOTES)
+    assert not at.exception
+    at.text_input(key="ritual_q").input("खरना में क्या बनता है?")
+    at.button[0].click().run()
+    assert not at.exception
+    text = all_text(at)
+    assert "गुड़ की खीर और रोटी" in text
+    assert "रिवाज़ थोड़े अलग" in text          # customs-vary line
+    assert "जाँचा: Nani, 2026-10-10" in text   # source shows who checked it
+
+
+def test_ritual_timing_question_gets_official_info(ritual_app):
+    at = ritual_app(SAMPLE_NOTES)
+    at.text_input(key="ritual_q").input("इस साल अर्घ्य कितने बजे है?")
+    at.button[0].click().run()
+    assert any("सरकारी सूचना" in i.value for i in at.info)
+
+
+def test_ritual_unrelated_question_not_in_notes(ritual_app):
+    at = ritual_app(SAMPLE_NOTES)
+    at.text_input(key="ritual_q").input("How do I reach Patna railway station?")
+    at.button[0].click().run()
+    assert any("नोट्स में नहीं" in i.value for i in at.info)
+
+
+def test_ritual_index_error_when_ollama_down(use_client, monkeypatch, tmp_path):
+    kb = write_kb(tmp_path / "kb", SAMPLE_NOTES)
+    base = load_settings()
+    s = replace(base, ritual=replace(base.ritual, kb_dir=str(kb), index_path=str(tmp_path / "idx")))
+    monkeypatch.setattr(services_mod, "load_settings", lambda: s)
+
+    class Down(RitualClient):
+        def embed(self, **kw):
+            raise ConnectionError("Failed to connect to Ollama")
+
+    use_client(Down())
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    assert not at.exception
+    assert any("nomic-embed-text" in e.value for e in at.error)
