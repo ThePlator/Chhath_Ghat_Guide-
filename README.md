@@ -27,7 +27,12 @@ At big ghats, families get separated, notices are hard to read in the crowd, and
 ## Demo
 
 - 🎥 **Video:** _coming after the field test_
-- 📸 **Screenshots:** _coming after the field test (real model, real ghat)_
+
+![Notice Reader](docs/blog/images/notice-reader.png)
+![Ritual Helper](docs/blog/images/ritual-helper.png)
+![Meeting Spot](docs/blog/images/meeting-spot.png)
+
+_Real app screens on a phone-sized browser. The model text in the first two images is test data copied from the notices and notes (Gemma's own output will replace it after the field test); the Meeting Spot uses emulated GPS and compass._
 
 ## How it works
 

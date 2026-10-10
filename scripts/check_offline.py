@@ -72,8 +72,12 @@ def check_models(llm, s, deep: bool) -> list[Check]:
     if not h["server"]:
         return [Check("Ollama running", FAIL, f"not reachable at {s.ollama.host}", "start it: ollama serve")]
     out = [Check("Ollama running", OK, s.ollama.host)]
+    seen = set()
     for key, model in [("vision_model", s.ollama.vision_model), ("text_model", s.ollama.text_model),
                        ("embed_model", s.ollama.embed_model)]:
+        if model in seen:  # vision and text are often the same model
+            continue
+        seen.add(model)
         if h[key]:
             out.append(Check(f"Model {model}", OK, "downloaded"))
         else:

@@ -25,6 +25,7 @@ def test_models_ok_and_missing():
     s = load_settings()
     ok = co.check_models(LLMGateway(OllamaSettings(), client=FakeClient()), s, deep=False)
     assert all(c.status == co.OK for c in ok)
+    assert [c.name for c in ok].count("Model gemma3:4b") == 1  # same vision and text model listed once
     missing = co.check_models(LLMGateway(OllamaSettings(), client=FakeClient(models=("gemma3:4b",))), s, deep=False)
     bad = [c for c in missing if c.status == co.FAIL]
     assert [c.name for c in bad] == ["Model nomic-embed-text"]
