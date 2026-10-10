@@ -4,7 +4,7 @@
 | --- | --- |
 | **Version** | 0.1 (draft) |
 | **Date** | 10 Oct 2026 |
-| **Author** | @Vn |
+| **Author** | Sameer |
 | **Related** | [HLD](HLD.md) · [README](../README.md) |
 
 This document turns the [HLD](HLD.md) into code-level detail: repository layout, modules and their interfaces, data formats, prompts, algorithms, configuration, error handling and tests. Names here are the names to use in code.

@@ -26,14 +26,27 @@ At big ghats, families get separated, notices are hard to read in the crowd, and
 
 ## How it works
 
-```text
-   Phone 1 ─┐                       ┌─────────────── Laptop ───────────────┐
-   Phone 2 ─┼── Wi-Fi hotspot ───▶  │ Streamlit app (HTTPS :8501)          │
-   Phone 3 ─┘   (no internet)       │   ├─ Notice Reader ─┐                │
-      ▲                             │   ├─ Ritual Helper ─┼─▶ Ollama       │
-      │ GPS from satellites         │   │      └ kb/*.md │    gemma3:4b    │
-      │ compass on phone            │   └─ Meeting Spot (runs on phone)    │
-                                    └──────────────────────────────────────┘
+```mermaid
+flowchart LR
+    SAT((GPS satellites))
+    subgraph Phones["Family phones (browser)"]
+        P1[Phone 1]
+        P2[Phone 2]
+        P3[Phone 3]
+        MS[Meeting Spot<br/>runs on the phone<br/>GPS + compass]
+    end
+    subgraph Laptop["Laptop (Wi-Fi hotspot, no internet)"]
+        ST[Streamlit app<br/>HTTPS :8501]
+        NR[Notice Reader]
+        RH[Ritual Helper]
+        KB[(kb/*.md<br/>checked notes)]
+        OL[Ollama<br/>gemma3:4b<br/>nomic-embed-text]
+    end
+    P1 & P2 & P3 -- Wi-Fi hotspot --> ST
+    ST --> NR --> OL
+    ST --> RH --> OL
+    KB --> RH
+    SAT -. position .-> MS
 ```
 
 | Part | Choice |

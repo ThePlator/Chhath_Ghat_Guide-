@@ -4,7 +4,7 @@
 | --- | --- |
 | **Version** | 0.1 (draft) |
 | **Date** | 10 Oct 2026 |
-| **Author** | @Vn |
+| **Author** | Sameer |
 | **Source** | Chhath Ghat Guide PRD, 10 Oct 2026 |
 | **Related** | [LLD](LLD.md) · [README](../README.md) |
 
