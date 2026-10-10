@@ -23,8 +23,10 @@ top_k = 4
 min_score = 0.45                # tune on tests/eval/ritual_questions.yaml
 weight_vector = 0.6
 weight_keyword = 0.4
+vector_only_min = 0.75          # with no keyword match, the vector score alone must be this high
 answer_temperature = 0.1
 index_path = "data/kb_index"
+kb_dir = "kb"
 
 [ui]
 default_language = "hi"         # hi | bho | mai — revisit after the Phase 1 spike

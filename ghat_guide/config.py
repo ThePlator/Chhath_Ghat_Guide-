@@ -12,7 +12,8 @@ if sys.version_info >= (3, 11):
 else:  # pragma: no cover
     import tomli as tomllib
 
-DEFAULT_PATH = Path(__file__).resolve().parent.parent / "config" / "settings.toml"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_PATH = PROJECT_ROOT / "config" / "settings.toml"
 LANGUAGES = ("hi", "bho", "mai")
 
 
@@ -47,8 +48,10 @@ class RitualSettings:
     min_score: float = 0.45
     weight_vector: float = 0.6
     weight_keyword: float = 0.4
+    vector_only_min: float = 0.75
     answer_temperature: float = 0.1
     index_path: str = "data/kb_index"
+    kb_dir: str = "kb"
 
 
 @dataclass(frozen=True)
@@ -104,3 +107,9 @@ def load_settings(path: str | os.PathLike | None = None) -> Settings:
     if settings.ui.default_language not in LANGUAGES:
         raise ConfigError(f"[ui] default_language must be one of {LANGUAGES}")
     return settings
+
+
+def project_path(p: str | os.PathLike) -> Path:
+    """Resolve a settings path (e.g. kb_dir) against the project root, not the CWD."""
+    path = Path(p)
+    return path if path.is_absolute() else PROJECT_ROOT / path

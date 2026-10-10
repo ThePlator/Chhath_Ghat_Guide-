@@ -21,7 +21,7 @@ This plan turns the PRD's two-day schedule into concrete tasks. Each task names 
 | 0. Design docs | Sat early | ✅ Done (HLD, LLD, README, LICENSE merged) |
 | 1. Model spike | Sat morning | 🟡 Code done; model test pending on laptop |
 | 2. Notice Reader | Sat afternoon | 🟡 Built and tested with a stand-in model; real-model check pending on laptop |
-| 3. Knowledge base + Ritual Helper | Sat evening | ⬜ |
+| 3. Knowledge base + Ritual Helper | Sat evening | 🟡 Built and tested with a stand-in model; notes need elder review; tune `min_score` on laptop |
 | 4. Meeting Spot | Sun morning | ⬜ |
 | 5. Field test (data off) | Sun afternoon | ⬜ |
 | 6. Docs, video, DEV post | Sun night | ⬜ |
@@ -89,16 +89,16 @@ Goal: prove Gemma can read a notice and answer in Hindi / Bhojpuri / Maithili on
 
 ## Phase 3 — Knowledge base + Ritual Helper (Sat evening, ~5 h)
 
-- [ ] **3.1 Write 8–12 notes** in `kb/` in your own words (LLD §1 list): overview, Nahay-Khay, Kharna, Sandhya Arghya, Usha Arghya, soop/daura and offerings, thekua and prasad, fasting customs, Chhathi Maiya and Surya, conduct at the ghat. No fixed clock times or dates. Include a "परिवारों में अंतर" section in each.
+- [x] **3.1 Write 8–12 notes** in `kb/` in your own words (LLD §1 list): overview, Nahay-Khay, Kharna, Sandhya Arghya, Usha Arghya, soop/daura and offerings, thekua and prasad, fasting customs, Chhathi Maiya and Surya, conduct at the ghat. No fixed clock times or dates. Include a "परिवारों में अंतर" section in each.
 - [ ] **3.2 Elder review**: read every note to a family elder; fix what they correct; fill `checked_by` and `checked_on`.
   *Done when:* every note has both fields. Note the elder's reaction for the DEV post.
-- [ ] **3.3 Loader + index** `ghat_guide/ritual/kb_loader.py`, `ghat_guide/ritual/index.py`, `scripts/build_index.py`.
+- [x] **3.3 Loader + index** `ghat_guide/ritual/kb_loader.py`, `ghat_guide/ritual/index.py`, `scripts/build_index.py`.
   *Done when:* `python scripts/build_index.py` writes `data/kb_index.*`; `tests/test_kb_loader.py` passes.
-- [ ] **3.4 Retriever** `ghat_guide/ritual/retriever.py`: hybrid keyword + vector, synonym map.
-- [ ] **3.5 Answerer** `ghat_guide/ritual/answerer.py`: grounded prompt, `found` / cited-id checks, fallback, "customs vary" line.
+- [x] **3.4 Retriever** `ghat_guide/ritual/retriever.py`: hybrid keyword + vector, synonym map.
+- [x] **3.5 Answerer** `ghat_guide/ritual/answerer.py`: grounded prompt, `found` / cited-id checks, fallback, "customs vary" line.
   *Done when:* `tests/test_retriever.py` and `tests/test_answerer.py` pass.
-- [ ] **3.6 Ritual tab** `ghat_guide/ui/ritual_tab.py`: question box, example chips, answer card, sources expander.
-- [ ] **3.7 Eval** `tests/eval/ritual_questions.yaml` (~14 answerable, ~6 not answerable) + `tests/eval/run_ritual_eval.py`. Tune `min_score`.
+- [x] **3.6 Ritual tab** `ghat_guide/ui/ritual_tab.py`: question box, example chips, answer card, sources expander.
+- [ ] **3.7 Eval** `tests/eval/ritual_questions.yaml` (15 answerable, 6 not answerable) + `tests/eval/run_ritual_eval.py` are written. On the laptop, run `python tests/eval/run_ritual_eval.py --include-unchecked --answer` (before the review) and again without the flag after it; set `min_score` from the printed score ranges.
   *Done when:* **0 confident answers** to out-of-KB questions, and most answerable questions hit the right note.
 
 ## Phase 4 — Meeting Spot (Sun morning, ~4 h)
