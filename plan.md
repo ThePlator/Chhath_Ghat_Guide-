@@ -23,7 +23,7 @@ This plan turns the PRD's two-day schedule into concrete tasks. Each task names 
 | 2. Notice Reader | Sat afternoon | 🟡 Built and tested with a stand-in model; real-model check pending on laptop |
 | 3. Knowledge base + Ritual Helper | Sat evening | 🟡 Built and tested with a stand-in model; notes need elder review; tune `min_score` on laptop |
 | 4. Meeting Spot | Sun morning | 🟡 Built; tested with emulated GPS/compass over HTTPS; real-phone outdoor check pending |
-| 5. Field test (data off) | Sun afternoon | ⬜ |
+| 5. Field test (data off) | Sun afternoon | 🟡 Pre-trip check script and field sheet ready; field test pending |
 | 6. Docs, video, DEV post | Sun night | ⬜ |
 | 7. Proofread and publish | Mon by 10:00 AM | ⬜ |
 
@@ -115,7 +115,7 @@ Goal: prove Gemma can read a notice and answer in Hindi / Bhojpuri / Maithili on
 
 Go to a nearby ghat or riverbank (location: _to decide_).
 
-- [ ] **5.1 Before leaving**: `python scripts/check_offline.py` passes; laptop charged; power bank for phones; sample notices printed.
+- [ ] **5.1 Before leaving**: `python scripts/check_offline.py --hotspot-ip <ip> --deep` says ready; laptop charged; power bank for phones; sample notices printed. Fill in [docs/FIELD_TEST.md](docs/FIELD_TEST.md) during the test.
 - [ ] **5.2 Offline setup**: laptop Wi-Fi internet off, hotspot on; phone mobile data **off** (show this on camera).
 - [ ] **5.3 Run the LLD §9.3 checklist**: 3 notices, 3 answerable + 2 unanswerable questions, save-walk-return with Meeting Spot, lid-closed test, clear test.
 - [ ] **5.4 Capture** photos and short clips for the video and post (no identifiable people without permission). Note GPS accuracy near the water and how long answers took.
