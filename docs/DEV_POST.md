@@ -11,8 +11,10 @@ Before publishing:
 1. Match the official Week 1 submission template: keep its first line and headings,
    and move the sections below under them.
 2. Replace the two [FILL] blocks (field test + video) with what really happened.
-3. Images load from the repo's main branch. If DEV doesn't show them, upload the files
-   in docs/blog/images/ through the DEV editor and swap the URLs.
+3. Images use relative paths so they show on GitHub from any branch. For DEV, which
+   needs full URLs, merge to main first, then make a copy with absolute links:
+     sed 's#](blog/images/#](https://raw.githubusercontent.com/ThePlator/Chhath_Ghat_Guide-/main/docs/blog/images/#' docs/DEV_POST.md > /tmp/dev_post.md
+   and paste /tmp/dev_post.md into DEV. (Or upload docs/blog/images/* in the DEV editor.)
 -->
 
 *This is a submission for the [Hacktoberfest Open-Source AI Challenge — Week 1: Touch Grass](https://dev.to/devteam/join-the-hacktoberfest-open-source-ai-challenge-week-1-touch-grass-2450-in-prizes-across-17-4pom).*
@@ -44,7 +46,7 @@ Take a photo of a notice or banner. A local **Gemma 3 (4B)** vision model:
 
 The original words are always on screen. **Safety notices** (deep water, barricades, emergency) show the original text **first, inside a red box** — never only a summary. A blurry photo gets **"साफ़ नहीं पढ़ पाए"** ("couldn't read it clearly") and tips for a better photo, instead of a guess. And if the explanation contains a number that isn't in the notice — an invented ghat number or time — the app warns you.
 
-![Notice Reader: a safety notice with the original text in red, an ordinary notice with a simple explanation, and a blurry photo the app refuses to guess at](https://raw.githubusercontent.com/ThePlator/Chhath_Ghat_Guide-/main/docs/blog/images/notice-reader.png)
+![Notice Reader: a safety notice with the original text in red, an ordinary notice with a simple explanation, and a blurry photo the app refuses to guess at](blog/images/notice-reader.png)
 
 *Real app screens; the notices are printed samples, and the read text and explanations shown are test data copied from the notices (screens with Gemma's own output will replace these after the field test).*
 
@@ -58,7 +60,7 @@ Ask *"सूप में क्या रखते हैं?"* (what goes in t
 
 Questions about **clock times, this year's dates or parking never reach the model at all** — they're sent to official notices and the panchang. An AI should not be the one telling a vrati what time to stand in the river.
 
-![Ritual Helper: an answer with its source note, the "not in my notes" fallback, and a timing question sent to official notices](https://raw.githubusercontent.com/ThePlator/Chhath_Ghat_Guide-/main/docs/blog/images/ritual-helper.png)
+![Ritual Helper: an answer with its source note, the "not in my notes" fallback, and a timing question sent to official notices](blog/images/ritual-helper.png)
 
 *Real app screens; the answer text is test data copied from the note it cites. The notes are marked "डेमो — समीक्षा बाकी" (demo — review pending) because the elder review comes before the real demo.*
 
@@ -68,7 +70,7 @@ Questions about **clock times, this year's dates or parking never reach the mode
 
 GPS comes from satellites, not the mobile network, so this keeps working when calls don't — and because it runs entirely in the phone's browser, it keeps working even if the phone wanders out of the laptop's Wi-Fi. When you're within GPS error of the spot, the arrow would just be noise, so it switches to *"आप बहुत पास हैं — फोटो वाली निशानी देखें"* (you're very close — look for the landmark in the photo). The spot deletes itself at midnight.
 
-![Meeting Spot: saved spot with landmark photo, the compass arrow showing about 130 m north-east, and the "you're very close" state](https://raw.githubusercontent.com/ThePlator/Chhath_Ghat_Guide-/main/docs/blog/images/meeting-spot.png)
+![Meeting Spot: saved spot with landmark photo, the compass arrow showing about 130 m north-east, and the "you're very close" state](blog/images/meeting-spot.png)
 
 *Real app screens with emulated GPS and compass (the landmark is a drawing).*
 
@@ -76,7 +78,7 @@ An **emergency card** sits on every screen and sends people to the nearest polic
 
 ## How it works offline
 
-![Architecture: phones join the laptop's hotspot; the Streamlit app talks to Ollama on 127.0.0.1; the Meeting Spot runs on the phone with GPS from satellites](https://raw.githubusercontent.com/ThePlator/Chhath_Ghat_Guide-/main/docs/blog/images/architecture.png)
+![Architecture: phones join the laptop's hotspot; the Streamlit app talks to Ollama on 127.0.0.1; the Meeting Spot runs on the phone with GPS from satellites](blog/images/architecture.png)
 
 | Part | Choice | Why |
 | --- | --- | --- |
@@ -171,7 +173,7 @@ The same maths lives in Python (`ghat_guide/geo.py`), and a test runs both side 
 
 ### 4. A pre-trip check, because you can't download anything at the ghat
 
-![Output of scripts/check_offline.py: models downloaded, phone pages offline-only, warnings for unchecked notes and missing emergency contacts](https://raw.githubusercontent.com/ThePlator/Chhath_Ghat_Guide-/main/docs/blog/images/check-offline.png)
+![Output of scripts/check_offline.py: models downloaded, phone pages offline-only, warnings for unchecked notes and missing emergency contacts](blog/images/check-offline.png)
 
 *A real run of `scripts/check_offline.py` — the warnings are true: the notes are still waiting for the elder review.*
 
