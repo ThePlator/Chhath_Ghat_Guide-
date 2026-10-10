@@ -1,0 +1,21 @@
+[server]
+address = "0.0.0.0"
+port = 8501
+headless = true
+enableStaticServing = true          # serves ./static at /app/static/
+maxUploadSize = 15                  # MB
+# For hotspot mode (phones), run scripts/make_cert.sh <hotspot-ip>, then uncomment:
+# sslCertFile = "certs/cert.pem"
+# sslKeyFile  = "certs/key.pem"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "viewer"            # hide the developer "Deploy" menu
+
+[theme]
+base = "light"
+
+[logger]
+level = "info"
