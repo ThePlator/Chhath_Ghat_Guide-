@@ -1,4 +1,4 @@
-streamlit>=1.38
+streamlit>=1.65  # tested version; older releases served static .html as plain text
 ollama>=0.4
 pillow>=10.4
 numpy>=1.26

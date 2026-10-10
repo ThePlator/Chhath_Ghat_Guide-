@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meeting Spot · Chhath Ghat Guide</title>
+<!-- Meeting Spot widget (LLD §6). Runs entirely on the phone: no network
+     requests, no external assets. The saved spot never leaves this browser. -->
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2330; --muted: #5f6573; --line: #e3e5ea; --card: #f6f7f9;
+    --accent: #e8590c; --accent-fg: #ffffff; --ok: #2b8a3e; --warn-bg: #fff4e0; --warn-fg: #8a4b00;
+    --err-bg: #ffe8e8; --err-fg: #a61e1e; --arrow: #e8590c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161b; --fg: #eceef2; --muted: #a3a8b4; --line: #2c3039; --card: #1d2027;
+            --warn-bg: #3a2a10; --warn-fg: #ffd08a; --err-bg: #3d1717; --err-fg: #ffb3b3; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Devanagari", "Noto Sans", sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 12px 16px 24px; }
+  h1 { font-size: 1.3rem; margin: 4px 0 6px; }
+  p { margin: 6px 0; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin: 12px 0; }
+  .msg { border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: .95rem; }
+  .warn { background: var(--warn-bg); color: var(--warn-fg); }
+  .err { background: var(--err-bg); color: var(--err-fg); }
+  label { display: block; font-size: .9rem; margin: 10px 0 4px; color: var(--muted); }
+  input[type=file], textarea { width: 100%; font: inherit; color: inherit; }
+  textarea { min-height: 64px; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); resize: vertical; }
+  button { font: inherit; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg);
+    padding: 12px 14px; width: 100%; margin-top: 10px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; font-size: 1.05rem; }
+  .row { display: flex; gap: 8px; } .row button { flex: 1; }
+  img.landmark { width: 100%; max-height: 260px; object-fit: cover; border-radius: 10px; margin-top: 8px; display: block; }
+  img.big { max-height: 420px; }
+  .note { font-size: 1.05rem; font-weight: 600; margin-top: 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .compass { display: flex; justify-content: center; margin: 8px 0; }
+  .compass svg { width: min(62vw, 240px); height: auto; transition: transform .25s ease-out; }
+  .distance { text-align: center; font-size: 2rem; font-weight: 700; margin: 4px 0 0; }
+  .direction { text-align: center; font-size: 1.1rem; margin: 0; }
+  .center { text-align: center; }
+  .hidden { display: none !important; }
+</style>
+<script src="meeting_spot_strings.js"></script>
+</head>
+<body>
+<main>
+  <h1 id="title"></h1>
+  <p id="intro" class="muted"></p>
+  <div id="global-msg"></div>
+
+  <!-- No spot saved yet -->
+  <section id="v-save" class="hidden">
+    <div class="card">
+      <label for="photo" id="photo-label"></label>
+      <input id="photo" type="file" accept="image/*" capture="environment">
+      <img id="photo-preview" class="landmark hidden" alt="">
+      <label for="note" id="note-label"></label>
+      <textarea id="note" maxlength="200"></textarea>
+      <button id="btn-save" class="primary"></button>
+      <div id="save-msg"></div>
+    </div>
+  </section>
+
+  <!-- Spot saved -->
+  <section id="v-saved" class="hidden">
+    <div class="card">
+      <strong id="saved-title"></strong>
+      <img id="saved-photo" class="landmark hidden" alt="">
+      <div id="saved-note" class="note"></div>
+      <p id="saved-meta" class="muted"></p>
+      <div id="saved-stale"></div>
+      <button id="btn-guide" class="primary"></button>
+      <button id="btn-clear"></button>
+    </div>
+  </section>
+
+  <!-- Guiding back -->
+  <section id="v-guide" class="hidden">
+    <div class="card">
+      <div id="g-status"></div>
+      <div class="compass" id="g-compass">
+        <svg id="g-arrow" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="3"/>
+          <path d="M50 8 L74 70 L50 58 L26 70 Z" fill="var(--arrow)"/>
+        </svg>
+      </div>
+      <p class="distance" id="g-distance"></p>
+      <p class="direction" id="g-direction"></p>
+      <p class="muted center" id="g-accuracy"></p>
+      <div id="g-hint"></div>
+      <img id="g-photo" class="landmark hidden" alt="">
+      <div id="g-note" class="note"></div>
+      <button id="btn-stop"></button>
+    </div>
+  </section>
+
+  <p id="privacy" class="muted"></p>
+  <p id="disclaimer" class="muted"></p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------------------------------------------------------------- strings
+  var ALL = window.MEETING_SPOT_STRINGS || { hi: {} };
+  var LANG = new URLSearchParams(location.search).get("lang") || window.MS_LANG || "hi";
+  function t(key, vars) {
+    var s = (ALL[LANG] && ALL[LANG][key]) || (ALL.hi && ALL.hi[key]) || key;
+    if (vars) Object.keys(vars).forEach(function (k) { s = s.split("{" + k + "}").join(String(vars[k])); });
+    return s;
+  }
+
+  // -------------------------------------------------------------- geo maths
+  // Mirrors ghat_guide/geo.py; tests/test_meeting_widget.py compares the two.
+  var R = 6371000, rad = Math.PI / 180;
+  function haversine(lat1, lon1, lat2, lon2) {
+    var p1 = lat1 * rad, p2 = lat2 * rad, dp = (lat2 - lat1) * rad, dl = (lon2 - lon1) * rad;
+    var a = Math.pow(Math.sin(dp / 2), 2) + Math.cos(p1) * Math.cos(p2) * Math.pow(Math.sin(dl / 2), 2);
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(a)));
+  }
+  function bearing(lat1, lon1, lat2, lon2) {
+    var p1 = lat1 * rad, p2 = lat2 * rad, dl = (lon2 - lon1) * rad;
+    var x = Math.sin(dl) * Math.cos(p2);
+    var y = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dl);
+    return (Math.atan2(x, y) / rad + 360) % 360;
+  }
+  function mod360(d) { return ((d % 360) + 360) % 360; }
+  function compassPoint(deg) {
+    var names = t("points");
+    if (!Array.isArray(names)) names = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    return names[Math.round(mod360(deg) / 45) % 8];
+  }
+  function roundDistance(d) { var step = d <= 100 ? 5 : 10; return Math.round(d / step) * step; }
+  // Average of angles on a circle (so 350° and 10° average to 0°, not 180°).
+  function circularMean(degs) {
+    var s = 0, c = 0;
+    degs.forEach(function (d) { s += Math.sin(d * rad); c += Math.cos(d * rad); });
+    return mod360(Math.atan2(s, c) / rad);
+  }
+  window.GhatGeo = { haversine: haversine, bearing: bearing, compassPoint: compassPoint,
+                     roundDistance: roundDistance, circularMean: circularMean };
+
+  // ---------------------------------------------------------------- storage
+  var KEY = "ghat_guide.meeting_spot.v1";
+  var memorySpot = null, storageOk = true;
+  function nextMidnight(now) { var d = new Date(now); d.setHours(24, 0, 0, 0); return d.getTime(); }
+  function loadSpot() {
+    var raw = null;
+    try { raw = window.localStorage.getItem(KEY); } catch (e) { storageOk = false; }
+    var spot = memorySpot;
+    if (raw) { try { spot = JSON.parse(raw); } catch (e) { spot = null; } }
+    // Saved without its photo (storage full)? The photo is still in memory for this visit.
+    if (spot && !spot.photo && memorySpot && memorySpot.saved_at === spot.saved_at) spot.photo = memorySpot.photo;
+    if (spot && (spot.v !== 1 || typeof spot.lat !== "number" || Date.now() >= spot.expires_at)) {
+      clearSpot(); return null;  // expired at midnight, or unreadable
+    }
+    return spot;
+  }
+  function storeSpot(spot) {
+    memorySpot = spot;
+    try { window.localStorage.setItem(KEY, JSON.stringify(spot)); storageOk = true; }
+    catch (e) {
+      // Quota or private mode: try once without the photo before giving up.
+      try { var lite = Object.assign({}, spot, { photo: null });
+            window.localStorage.setItem(KEY, JSON.stringify(lite)); memorySpot = spot; }
+      catch (e2) { storageOk = false; }
+    }
+  }
+  function clearSpot() {
+    memorySpot = null;
+    try { window.localStorage.removeItem(KEY); } catch (e) { /* nothing stored */ }
+  }
+
+  // ------------------------------------------------------------------- dom
+  function $(id) { return document.getElementById(id); }
+  function show(id) { ["v-save", "v-saved", "v-guide"].forEach(function (v) { $(v).classList.toggle("hidden", v !== id); }); }
+  function msg(el, text, kind) {
+    var key = (kind || "warn") + "|" + (text || "");
+    if (el.dataset.msg === key) return;  // compass events arrive ~60×/s; skip no-op redraws
+    el.dataset.msg = key;
+    el.textContent = "";
+    if (!text) return;
+    var d = document.createElement("div");
+    d.className = "msg " + (kind || "warn"); d.textContent = text; el.appendChild(d);
+  }
+  function setPhoto(img, src) { if (src) { img.src = src; img.classList.remove("hidden"); } else { img.removeAttribute("src"); img.classList.add("hidden"); } }
+  function fmtTime(ms) { try { return new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); } catch (e) { return ""; } }
+
+  // ----------------------------------------------------------------- photo
+  // Downscale in a canvas (≤640 px, JPEG 0.7): keeps localStorage small and
+  // drops all photo metadata, including the GPS the camera wrote into EXIF.
+  var pendingPhoto = null;
+  function downscale(file) {
+    return new Promise(function (resolve) {
+      if (!file) return resolve(null);
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var scale = Math.min(1, 640 / Math.max(img.naturalWidth, img.naturalHeight));
+        var c = document.createElement("canvas");
+        c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL("image/jpeg", 0.7));
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    });
+  }
+
+  // ------------------------------------------------------------------- gps
+  var GEO_OPTS = { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 };
+  var ROUGH_SAVE_M = 30;
+  function geoError(err) {
+    if (err && err.code === 1) return t("err_denied");
+    if (err && err.code === 3) return t("err_timeout");
+    return t("err_unavailable");
+  }
+
+  // -------------------------------------------------------------- save flow
+  function saveWith(pos) {
+    var now = Date.now();
+    storeSpot({
+      v: 1,
+      lat: pos.coords.latitude, lon: pos.coords.longitude,
+      accuracy_m: Math.round(pos.coords.accuracy || 0),
+      note: $("note").value.trim().slice(0, 200),
+      photo: pendingPhoto,
+      saved_at: now, expires_at: nextMidnight(now),
+    });
+    pendingPhoto = null; $("note").value = ""; $("photo").value = ""; setPhoto($("photo-preview"), null);
+    render();
+  }
+  function onSave() {
+    var out = $("save-msg"), btn = $("btn-save");
+    if (!navigator.geolocation) return msg(out, t("no_geo"), "err");
+    btn.disabled = true; msg(out, t("locating"));
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      btn.disabled = false;
+      var acc = Math.round(pos.coords.accuracy || 0);
+      if (acc > ROUGH_SAVE_M) {
+        msg(out, t("rough_fix", { acc: acc }));
+        var row = document.createElement("div"); row.className = "row";
+        var again = document.createElement("button"); again.textContent = t("try_again"); again.onclick = onSave;
+        var anyway = document.createElement("button"); anyway.textContent = t("save_anyway"); anyway.onclick = function () { saveWith(pos); };
+        row.appendChild(again); row.appendChild(anyway); out.appendChild(row);
+        return;
+      }
+      msg(out, ""); saveWith(pos);
+    }, function (err) { btn.disabled = false; msg(out, geoError(err), "err"); }, GEO_OPTS);
+  }
+
+  // ------------------------------------------------------------- guide mode
+  var watchId = null, heading = null, headings = [], last = null, guiding = false, wakeLock = null, compassTimer = null;
+
+  function onHeading(h) {
+    var screenAngle = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+    headings.push(mod360(h + screenAngle));
+    if (headings.length > 5) headings.shift();
+    heading = circularMean(headings);
+    renderGuide();
+  }
+  function onAbsolute(e) { if (e.alpha != null) onHeading(360 - e.alpha); }       // Android Chrome
+  function onIOS(e) {
+    if (e.webkitCompassHeading != null) onHeading(e.webkitCompassHeading);         // iOS Safari
+    else if (e.absolute && e.alpha != null) onHeading(360 - e.alpha);
+  }
+  function startCompass() {
+    heading = null; headings = [];
+    var listen = function () {
+      if ("ondeviceorientationabsolute" in window) window.addEventListener("deviceorientationabsolute", onAbsolute);
+      else window.addEventListener("deviceorientation", onIOS);
+    };
+    // iOS 13+: permission must be asked from the button tap that called us.
+    if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function") {
+      DeviceOrientationEvent.requestPermission().then(function (r) { if (r === "granted") listen(); renderGuide(); })
+        .catch(function () { renderGuide(); });
+    } else if (window.DeviceOrientationEvent) {
+      listen();
+    }
+    clearTimeout(compassTimer);
+    compassTimer = setTimeout(renderGuide, 3000);  // after 3 s with no heading → text directions
+  }
+  function stopCompass() {
+    window.removeEventListener("deviceorientationabsolute", onAbsolute);
+    window.removeEventListener("deviceorientation", onIOS);
+    clearTimeout(compassTimer);
+  }
+  function startWatch() {
+    if (watchId !== null || !navigator.geolocation) return;
+    watchId = navigator.geolocation.watchPosition(function (pos) { last = pos; renderGuide(); },
+      function (err) { msg($("g-status"), geoError(err), "err"); }, GEO_OPTS);
+  }
+  function stopWatch() { if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; } }
+
+  function onGuide() {
+    guiding = true; last = null; show("v-guide");
+    startCompass(); startWatch();
+    if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (l) { wakeLock = l; }).catch(function () {});
+    renderGuide();
+  }
+  function onStop() {
+    guiding = false; stopWatch(); stopCompass();
+    if (wakeLock) { wakeLock.release().catch(function () {}); wakeLock = null; }
+    render();
+  }
+  // Save battery: no GPS while the page is hidden; resume when it's back.
+  document.addEventListener("visibilitychange", function () {
+    if (!guiding) return;
+    if (document.hidden) stopWatch(); else startWatch();
+  });
+
+  function renderGuide() {
+    if (!guiding) return;
+    var spot = loadSpot();
+    if (!spot) { onStop(); return; }
+    setPhoto($("g-photo"), spot.photo); $("g-note").textContent = spot.note || "";
+    var compassFound = heading !== null;
+    if (!last) {
+      msg($("g-status"), t("waiting_gps"));
+      $("g-distance").textContent = ""; $("g-direction").textContent = ""; $("g-accuracy").textContent = "";
+      $("g-compass").classList.add("hidden");
+      return;
+    }
+    var lat = last.coords.latitude, lon = last.coords.longitude, acc = Math.round(last.coords.accuracy || 0);
+    var d = haversine(lat, lon, spot.lat, spot.lon), b = bearing(lat, lon, spot.lat, spot.lon);
+    $("g-accuracy").textContent = t("accuracy", { acc: acc });
+
+    if (d <= Math.max(10, acc)) {
+      // Within GPS error: the arrow would be noise. Point people at the landmark.
+      msg($("g-status"), t("arrived"));
+      $("g-compass").classList.add("hidden");
+      $("g-distance").textContent = ""; $("g-direction").textContent = "";
+      $("g-photo").classList.add("big");
+      msg($("g-hint"), "");
+      return;
+    }
+    $("g-photo").classList.remove("big");
+    msg($("g-status"), acc > ROUGH_SAVE_M ? t("rough") : "");
+    $("g-distance").textContent = d >= 1000 ? t("distance_km", { d: (d / 1000).toFixed(1) }) : t("distance", { d: roundDistance(d) });
+    $("g-direction").textContent = t("towards", { dir: compassPoint(b) });
+
+    if (compassFound) {
+      $("g-compass").classList.remove("hidden");
+      $("g-arrow").style.transform = "rotate(" + mod360(b - heading) + "deg)";
+      msg($("g-hint"), t("hold_flat"));
+    } else {
+      $("g-compass").classList.add("hidden");
+      msg($("g-hint"), t("no_compass"));
+    }
+  }
+
+  // ------------------------------------------------------------------ main
+  function render() {
+    msg($("global-msg"), "");
+    if (!window.isSecureContext) { show(null); return msg($("global-msg"), t("insecure"), "err"); }
+    var spot = loadSpot();
+    if (!storageOk) msg($("global-msg"), t("storage_off"));
+    if (!spot) { show("v-save"); return; }
+    show("v-saved");
+    setPhoto($("saved-photo"), spot.photo);
+    $("saved-note").textContent = spot.note || "";
+    $("saved-meta").textContent = t("saved_at", { time: fmtTime(spot.saved_at), acc: spot.accuracy_m });
+    var hours = Math.floor((Date.now() - spot.saved_at) / 3600000);
+    msg($("saved-stale"), hours >= 6 ? t("saved_long_ago", { hours: hours }) : "");
+  }
+
+  function init() {
+    document.documentElement.lang = LANG === "hi" ? "hi" : LANG;
+    $("title").textContent = t("title"); $("intro").textContent = t("intro");
+    $("photo-label").textContent = t("photo_label"); $("note-label").textContent = t("note_label");
+    $("note").placeholder = t("note_placeholder");
+    $("btn-save").textContent = t("save"); $("saved-title").textContent = t("saved_title");
+    $("btn-guide").textContent = t("take_me_back"); $("btn-clear").textContent = t("clear");
+    $("btn-stop").textContent = t("stop");
+    $("privacy").textContent = t("privacy"); $("disclaimer").textContent = t("disclaimer");
+
+    $("photo").addEventListener("change", function () {
+      downscale(this.files && this.files[0]).then(function (data) { pendingPhoto = data; setPhoto($("photo-preview"), data); });
+    });
+    $("btn-save").addEventListener("click", onSave);
+    $("btn-guide").addEventListener("click", onGuide);
+    $("btn-stop").addEventListener("click", onStop);
+    $("btn-clear").addEventListener("click", function () { if (window.confirm(t("clear_confirm"))) { clearSpot(); render(); } });
+    render();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
